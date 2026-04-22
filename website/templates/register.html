@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <h2>Create Account 🌱</h2>
+        <p class="subtitle">Start your smart meal planning journey</p>
+
+        <form method="POST">
+            <div class="field">
+                <label>Email Address</label>
+                <input type="email" name="email" placeholder="you@example.com" required>
+            </div>
+
+            <div class="field">
+                <label>Full Name</label>
+                <input type="text" name="fullname" placeholder="Your full name" required>
+            </div>
+
+            <div class="field">
+                <label>Password</label>
+                <input type="password" name="password1" placeholder="Create a password" required>
+            </div>
+
+            <div class="field">
+                <label>Confirm Password</label>
+                <input type="password" name="password2" placeholder="Confirm your password" required>
+            </div>
+
+            <button type="submit" class="btn" style="margin-top: 10px;">Create Account</button>
+        </form>
+
+        <p class="auth-footer">
+            Already have an account? <a href="/login">Login here</a>
+        </p>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Meal Planner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<nav class="navbar">
+    <a href="/" class="logo">🍽 SmartMeal</a>
+    <div class="nav-links">
+        <a href="/" class="{{ 'active' if request.path == '/' }}">Home</a>
+        <a href="/optimizer" class="{{ 'active' if request.path == '/optimizer' }}">Optimizer</a>
+    </div>
+    <div class="auth-links">
+        <a href="/login" class="btn-outline">Login</a>
+        <a href="/register" class="btn-filled">Sign Up</a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Menu">&#9776;</button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+    <a href="/">Home</a>
+    <a href="/optimizer">Optimizer</a>
+    <a href="/login">Login</a>
+    <a href="/register">Sign Up</a>
+</div>
+
+<!-- FLASH MESSAGES -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flash-container">
+            {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<div class="content">
+    {% block content %}{% endblock %}
+</div>
+
+<script>
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+        mobileMenu.classList.toggle('open');
+    });
+</script>
+
+</body>
+</html>

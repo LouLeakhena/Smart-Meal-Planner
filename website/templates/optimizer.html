@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="page-header">
+        <h1 class="title">🍱 Meal Optimizer</h1>
+        <p class="subtitle">Add foods and let the algorithm build the best meal plan within your calorie budget</p>
+    </div>
+
+    <!-- Add Food -->
+    <div class="card">
+        <h2>➕ Add a Food Item</h2>
+
+        <form method="POST" autocomplete="off">
+            <input type="hidden" name="food" value="1">
+
+            <div class="grid-4">
+                <div class="field">
+                    <label>Food Name</label>
+                    <input name="name" placeholder="e.g. Grilled Chicken" required>
+                </div>
+                <div class="field">
+                    <label>Calories (kcal)</label>
+                    <input name="cal" type="number" placeholder="e.g. 300" required>
+                </div>
+                <div class="field">
+                    <label>Protein (g)</label>
+                    <input name="protein" type="number" placeholder="e.g. 35" required>
+                </div>
+                <div class="field">
+                    <label>Meal Type</label>
+                    <select name="meal">
+                        <option>Breakfast</option>
+                        <option>Lunch</option>
+                        <option>Dinner</option>
+                        <option>Snack</option>
+                    </select>
+                </div>
+            </div>
+
+            <button class="btn" type="submit">Add Food</button>
+        </form>
+    </div>
+
+    <!-- Food Library -->
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
+            <h2 style="margin-bottom:0;">📋 Food Library ({{ foods|length }} items)</h2>
+            {% if foods %}
+            <form method="POST">
+                <input type="hidden" name="clear" value="1">
+                <button class="btn btn-danger" type="submit"
+                    onclick="return confirm('Clear all foods?')">🗑 Clear All</button>
+            </form>
+            {% endif %}
+        </div>
+
+        {% if foods %}
+        <table class="food-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Meal</th>
+                    <th>Calories</th>
+                    <th>Protein</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in foods %}
+                <tr>
+                    <td>{{ f.name }}</td>
+                    <td><span class="tag">{{ f.meal_type }}</span></td>
+                    <td>{{ f.calories }} kcal</td>
+                    <td>{{ f.protein }}g</td>
+                    <td>
+                        <form method="POST" style="margin:0;">
+                            <input type="hidden" name="delete_index" value="{{ loop.index0 }}">
+                            <button type="submit"
+                                    class="btn-delete"
+                                    onclick="return confirm('Remove \'{{ f.name }}\'?')"
+                                    title="Remove this food">✕</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="empty-state">No foods added yet. Add some above!</p>
+        {% endif %}
+    </div>
+
+    <!-- Optimizer -->
+    <div class="card">
+        <h2>⚙️ Run Optimizer</h2>
+        <p style="color:gray; margin-bottom: 15px;">The knapsack algorithm will find the combination that maximizes protein within your calorie limit.</p>
+
+        <form method="POST" autocomplete="off">
+            <input type="hidden" name="optimize" value="1">
+            <div class="field" style="max-width: 300px;">
+                <label>Maximum Calories</label>
+                <input name="max_cal" type="number" placeholder="e.g. 1800" required>
+            </div>
+            <button class="btn btn-green">Optimize My Meals</button>
+        </form>
+    </div>
+
+    <!-- Result -->
+    {% if optimized %}
+    <div class="card card-highlight">
+        <h2>🏆 Optimal Meal Combination</h2>
+        <table class="food-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Meal</th>
+                    <th>Calories</th>
+                    <th>Protein</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for f in optimized %}
+                <tr>
+                    <td><strong>{{ f.name }}</strong></td>
+                    <td><span class="tag">{{ f.meal_type }}</span></td>
+                    <td>{{ f.calories }} kcal</td>
+                    <td>{{ f.protein }}g</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="result">
+            Total: <strong>{{ optimized|sum(attribute='calories') }} kcal</strong>
+            &nbsp;·&nbsp;
+            Protein: <strong>{{ optimized|sum(attribute='protein') }}g</strong>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

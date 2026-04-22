@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="page-header">
+        <h1 class="title">🍽 Smart Meal Planner</h1>
+        <p class="subtitle">Calculate your daily calories and build your optimized meal plan</p>
+    </div>
+
+    <!-- CALCULATOR -->
+    <div class="card">
+        <h2>📊 Calorie Calculator</h2>
+
+        <form method="POST" autocomplete="off">
+            <input type="hidden" name="calculate" value="1">
+
+            <div class="grid-3">
+                <div class="field">
+                    <label>Weight (kg)</label>
+                    <input name="weight" type="number" step="0.1" placeholder="e.g. 70" required>
+                </div>
+                <div class="field">
+                    <label>Height (cm)</label>
+                    <input name="height" type="number" step="0.1" placeholder="e.g. 175" required>
+                </div>
+                <div class="field">
+                    <label>Age</label>
+                    <input name="age" type="number" placeholder="e.g. 25" required>
+                </div>
+            </div>
+
+            <div class="grid-3">
+                <div class="field">
+                    <label>Gender</label>
+                    <select name="gender">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Activity Level</label>
+                    <select name="activity">
+                        <option value="sedentary">Sedentary(barely or no exercise)</option>
+                        <option value="light">Light(exercise 1-3 days/week)</option>
+                        <option value="moderate">Moderate(exercise 4-5 days/week)</option>
+                        <option value="active">Active(exercise 6-7 days/week)</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Goal</label>
+                    <select name="goal" id="goalSelect">
+                        <option value="lose">Lose Weight</option>
+                        <option value="maintain">Maintain</option>
+                        <option value="gain">Gain Weight</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="field" style="max-width: 300px;">
+                <label>Rate (kg/week)</label>
+                <select name="rate" id="rateSelect">
+                    <option value="0.25">0.25 kg/week (slow)</option>
+                    <option value="0.5">0.5 kg/week (moderate)</option>
+                    <option value="1">1 kg/week (fast)</option>
+                </select>
+            </div>
+
+            <button class="btn" type="submit">Calculate My Calories</button>
+        </form>
+
+        {% if calories %}
+        <div class="result">
+            🔥 Your Daily Target: <strong>{{ calories }} calories</strong>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- PIE CHART SECTION -->
+    {% if chart.foods %}
+    <div class="card">
+        <h2>🥧 Last Meal Plan Breakdown</h2>
+        <div class="chart-layout">
+            <div class="pie-wrapper">
+                <canvas id="pieChart"></canvas>
+            </div>
+            <div class="pie-table">
+                <table class="food-table">
+                    <thead>
+                        <tr>
+                            <th>Food</th>
+                            <th>Calories</th>
+                            <th>Protein</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for f in chart.foods %}
+                        <tr>
+                            <td>{{ f.name }}</td>
+                            <td>{{ f.calories }} kcal</td>
+                            <td>{{ f.protein }}g</td>
+                        </tr>
+                        {% endfor %}
+                        <tr class="total-row">
+                            <td>Total</td>
+                            <td>{{ chart.foods | sum(attribute='calories') }} kcal</td>
+                            <td>{{ chart.foods | sum(attribute='protein') }}g</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- OPTIMIZER CTA -->
+    <div class="optimizer-section">
+        <h2>Want a smart meal plan?</h2>
+        <p>Let the system choose the best food combination for you using an optimization algorithm</p>
+        <a href="/optimizer" class="big-btn">Build My Meal Plan →</a>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const rateOptions = {
+    lose:     [['0.25','0.25 kg/week (slow)'], ['0.5','0.5 kg/week (moderate)'], ['1','1 kg/week (fast)']],
+    maintain: [['0','Maintain current weight']],
+    gain:     [['0.25','0.25 kg/week (slow)'], ['0.5','0.5 kg/week (moderate)']]
+};
+
+const goalSelect = document.getElementById('goalSelect');
+const rateSelect = document.getElementById('rateSelect');
+
+function updateRateOptions(preserveValue) {
+    const current = preserveValue !== undefined ? preserveValue : rateSelect.value;
+    const options = rateOptions[goalSelect.value];
+    rateSelect.innerHTML = options.map(([val, label]) =>
+        `<option value="${val}" ${val === current ? 'selected' : ''}>${label}</option>`
+    ).join('');
+}
+goalSelect.addEventListener('change', () => updateRateOptions(null));
+updateRateOptions(rateSelect.value);
+</script>
+
+{% if chart.foods %}
+<script>
+const foodList = JSON.parse('{{ chart.foods | tojson }}');
+const colors = [
+    '#3498db','#2ecc71','#e74c3c','#f39c12','#9b59b6',
+    '#1abc9c','#e67e22','#34495e','#e91e63','#00bcd4'
+];
+const totalCal = foodList.reduce((s, f) => s + f.calories, 0);
+
+new Chart(document.getElementById('pieChart'), {
+    type: 'pie',
+    data: {
+        labels: foodList.map(f => f.name),
+        datasets: [{
+            data: foodList.map(f => f.calories),
+            backgroundColor: colors.slice(0, foodList.length),
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { position: 'bottom', labels: { padding: 16, font: { size: 13 } } },
+            tooltip: {
+                callbacks: {
+                    label: function(ctx) {
+                        const f = foodList[ctx.dataIndex];
+                        const pct = ((f.calories / totalCal) * 100).toFixed(1);
+                        return ` ${f.calories} kcal (${pct}%) · ${f.protein}g protein`;
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endif %}
+
+{% endblock %}

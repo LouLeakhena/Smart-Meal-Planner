@@ -258,17 +258,6 @@ Uses CSS custom properties for theming. Key layout classes:
 
 Responsive breakpoints: **768px** (collapses grids, shows hamburger) and **480px** (single-column grid-4).
 
----
-
-## Configuration
-
-| Config Key | Default | Description |
-|---|---|---|
-| `SECRET_KEY` | `mealplanner-dev-secret` | Change to a random string in production |
-| `SESSION_COOKIE_SAMESITE` | `Lax` | CSRF protection setting |
-| `MIN_CALORIES` | `1000` | Floor for calculated daily calorie target |
-
----
 
 ## Dependencies
 

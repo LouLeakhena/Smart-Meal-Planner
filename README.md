@@ -45,7 +45,7 @@ SMART MEAL PLANNER
 
 ```bash
 git clone https://github.com/LouLeakhena/Smart-Meal-Planner.git
-cd meal-planner
+cd Smart-Meal-Planner
 ```
 
 ### 2. Create and activate a virtual environment

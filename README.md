@@ -44,7 +44,7 @@ SMART MEAL PLANNER
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/meal-planner.git
+git clone https://github.com/LouLeakhena/Smart-Meal-Planner.git
 cd meal-planner
 ```
 
